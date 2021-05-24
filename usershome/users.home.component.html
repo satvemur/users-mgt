@@ -1,0 +1,100 @@
+<p-toast position="top-center" key="tc"></p-toast>
+<div class="content-section introduction">
+    <div class="feature-intro">
+        <h1>User <span>Management</span></h1>
+    </div>
+</div>
+<div class="content-section implementation">
+    <div class="card">
+        <p-toolbar styleClass="p-mb-4">
+            <ng-template pTemplate="left">
+                <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2" (click)="openNew()" id="New"></button>
+                <button pButton pRipple [label]="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedUsers()" [disabled]="!selectedUsers || !selectedUsers.length"></button>
+            </ng-template>
+    
+            <ng-template pTemplate="right">
+            </ng-template>
+        </p-toolbar>
+    </div>
+    <p-table #dt [value]="users" [rows]="20" styleClass="p-datatable-gridlines"  [resizableColumns]="true" [paginator]="true" [globalFilterFields]="['firstname','lastname','email']"   [(selection)]="selectedUsers" [rowHover]="true" dataKey="_id" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
+        <ng-template pTemplate="caption">
+            <div class="p-d-flex p-ai-center p-jc-between">
+                <h5 class="p-m-0">Manage Users</h5>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+                </span>
+            </div>
+        </ng-template>   
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th pResizableColumn pSortableColumn="lastname">Last Name <p-sortIcon field="lastname"></p-sortIcon></th>
+                <th pResizableColumn pSortableColumn="firstname">First Name <p-sortIcon field="firstname"></p-sortIcon></th>
+                <th pResizableColumn pSortableColumn="email">Email Address <p-sortIcon field="email"></p-sortIcon></th>
+                <th></th>
+            </tr>
+        </ng-template>       
+        <ng-template pTemplate="body" let-user>
+            <tr>
+                <td>
+                    <p-tableCheckbox [value]="user"></p-tableCheckbox>
+                </td>
+                <td>{{user.lastname}}</td>
+                <td>{{user.firstname}}</td>
+                <td>{{user.email}}</td>
+                <td>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" (click)="editUser(user)"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteUser(user)"></button>
+                </td>
+            </tr>
+        </ng-template>              
+        <ng-template pTemplate="summary">
+            <div class="p-d-flex p-ai-center p-jc-between">
+                In total there are {{users ? users.length : 0 }} users.
+            </div>
+        </ng-template>
+    </p-table>
+</div>
+<p-dialog (onHide)="hideDialog()" header="New User" [(visible)]="userDialog" [modal]="true" [style]="{width: '60vw'}" [maximizable]="false" [baseZIndex]="10000" [draggable]="false" [resizable]="false">
+    <form [formGroup]="groupform" (ngSubmit)="onSubmit()">
+        <p-panel>       
+            <ng-template pTemplate="content">
+                <div class="p-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-6">
+                        <label for="firstname">First Name</label>
+                        <input  id="firstname" type="text" pInputText formControlName="firstname" pKeyFilter="alpha">
+                        <p-message severity="info"  [text]="groupform.controls['firstname'].errors['required'] ? 'First Name is required' : groupform.controls['firstname'].errors['minlength'] ? 'Must be longer than 2 characters' :groupform.controls['firstname'].errors['maxlength'] ? 'Must be less than 100 characters': ''" 
+                            *ngIf="!groupform.controls['firstname'].valid&&groupform.controls['firstname'].dirty">
+                        </p-message>
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <label for="lastname">Last Name</label>
+                        <input  id="lastname" type="text" pInputText formControlName="lastname" pKeyFilter="alpha" > 
+                        <p-message severity="info"  [text]="groupform.controls['lastname'].errors['required'] ? 'Last Name is required' : groupform.controls['lastname'].errors['minlength'] ? 'Must be longer than 2 characters' :groupform.controls['lastname'].errors['maxlength'] ? 'Must be less than 100 characters': ''"                            
+                            *ngIf="!groupform.controls['lastname'].valid&&groupform.controls['lastname'].dirty">
+                        </p-message>                        
+                    </div>
+                    <div class="p-field p-col-12">
+                        <label for="address">Address</label>
+                        <textarea id="address" type="text" rows="4" pInputTextarea formControlName="address"></textarea>
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <label for="email">Email</label>
+                        <input [maxlength]="75" id="email" type="text" pInputText formControlName="email" pKeyFilter="email"> 
+                        <p-message severity="info"  text="A valid E-mail is required"                            
+                            *ngIf="!groupform.controls['email'].valid&&groupform.controls['email'].dirty">
+                        </p-message>                        
+                    </div>                
+                </div>
+            </ng-template>
+        </p-panel> 
+    </form>       
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" (click)="hideDialog()" style="width:8rem" class="p-mr-2 p-mb-2"></button>
+        <button pButton  pRipple label="Save" (click)="saveUser()" type="submit" style="width:8rem" class="p-mr-2 p-mb-2" [disabled]="!groupform.valid" id="Save"></button>
+    </ng-template>
+</p-dialog>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
